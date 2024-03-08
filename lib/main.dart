@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:setuproject/bluetooth.dart';
 import 'package:setuproject/picture.dart';
 
+import 'bluetooth.dart';
 import 'file.dart';
+import 'mic.dart';
 
 void main() {
   runApp(const MyApp());
@@ -42,17 +44,23 @@ class MyHomePage extends StatelessWidget {
                 onPressed: () {
                   goToRoute(context, const PictureRoute());
                 },
-                child: const Text('Picture route'),
+                child: const Text('Image Picker'),
               ),
               ElevatedButton(
                 onPressed: () {
                   goToRoute(context, const FileRoute());
                 },
-                child: const Text('File route'),
+                child: const Text('File picker'),
               ),
               ElevatedButton(
                 onPressed: () {
-                  goToRoute(context, const BluetoothRoute());
+                  goToRouteState(context, const PlayFromMic());
+                },
+                child: const Text('Mic Stream'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  goToRoute(context, const MyAppBluetooth());
                 },
                 child: const Text('Bluetooth'),
               ),
@@ -64,23 +72,22 @@ class MyHomePage extends StatelessWidget {
   }
 
   void goToRoute(
-      BuildContext context,
-      StatelessWidget route,
-      ){
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => route),
-      );
+    BuildContext context,
+    StatelessWidget route,
+  ) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => route),
+    );
   }
 
   void goToRouteState(
-      BuildContext context,
-      StatefulWidget route,
-      ){
+    BuildContext context,
+    StatefulWidget route,
+  ) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => route),
     );
   }
 }
-

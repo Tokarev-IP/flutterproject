@@ -1,101 +1,55 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:bluetooth_enable_fork/bluetooth_enable_fork.dart';
 
-class BluetoothRoute extends StatelessWidget {
-  const BluetoothRoute({super.key});
+class MyAppBluetooth extends StatelessWidget {
+  const MyAppBluetooth({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: BluetoothScreen(),
+      title: "Test",
+      home: _MyAppState(),
     );
   }
 }
 
-class BluetoothScreen extends StatefulWidget {
-  @override
-  BluetoothScreenState createState() => BluetoothScreenState();
-}
+class _MyAppState extends StatelessWidget {
 
-class BluetoothScreenState extends State<BluetoothScreen> {
-  bool isScanning = false;
+  Future<void> enableBT() async {
+    BluetoothEnable.enableBluetooth.then((value) {
+      print(value);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Bluetooth Screen'),
-      ),
-      body: Column(
-        children: <Widget>[
-          ListTile(
-            title: Text('Bluetooth'),
-            trailing: Switch(
-              value: isScanning,
-              onChanged: (bool value) {
-                setState(() {
-                  isScanning = value;
-                  if (value) {
-                    _startScan();
-                  } else {
-                    _stopScan();
-                  }
-                });
-              },
-            ),
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'Bluetooth Enable Plugin',
           ),
-          Expanded(
-            child: StreamBuilder<List<ScanResult>>(
-              stream: FlutterBluePlus.scanResults,
-              initialData: [],
-              builder: (BuildContext context,
-                  AsyncSnapshot<List<ScanResult>> snapshot) {
-                if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                }
+          centerTitle: true,
+        ),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text("Press the button to request turning on Bluetooth"),
+              SizedBox(height: 20.0),
+              ElevatedButton(
+                onPressed: (() {
+                  enableBT();
+                }),
+                child: Text('Request to turn on Bluetooth'),
+              ),
+              SizedBox(height: 10.0),
 
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                }
-
-                final List<ScanResult> scanResults = snapshot.data!;
-
-                return ListView.builder(
-                  itemCount: scanResults.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final ScanResult result = scanResults[index];
-                    return ListTile(
-                      title: Text(result.device.name ?? 'Unknown'),
-                      subtitle: Text(result.device.id.toString()),
-                      onTap: () {
-                        _connectToDevice(result.device);
-                      },
-                    );
-                  },
-                );
-              },
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
-  }
-
-  void _startScan() {
-    FlutterBluePlus.startScan(timeout: Duration(seconds: 4));
-  }
-
-  void _stopScan() {
-    FlutterBluePlus.stopScan();
-  }
-
-  void _connectToDevice(BluetoothDevice device) async {
-    try {
-      await device.connect();
-      print('Connected to ${device.name}');
-      // Здесь вы можете выполнить дополнительные действия после успешного подключения
-    } catch (e) {
-      print('Failed to connect to ${device.name}: $e');
-    }
   }
 }
