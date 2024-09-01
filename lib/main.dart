@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:setuproject/bluetooth.dart';
-import 'package:setuproject/picture.dart';
+import 'package:setuproject/camera.dart';
+import 'package:setuproject/location.dart';
+import 'package:setuproject/media.dart';
 
-import 'bluetooth.dart';
 import 'file.dart';
 import 'mic.dart';
 
@@ -33,36 +34,45 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Main'),
-        ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               ElevatedButton(
                 onPressed: () {
-                  goToRoute(context, const PictureRoute());
+                  goToRoute(context, const MediaScreen());
                 },
-                child: const Text('Image Picker'),
+                child: const Text('Media'),
               ),
               ElevatedButton(
                 onPressed: () {
-                  goToRoute(context, const FileRoute());
+                  goToRouteState(context, const CameraScreen());
                 },
-                child: const Text('File picker'),
+                child: const Text('Camera'),
               ),
               ElevatedButton(
                 onPressed: () {
-                  goToRouteState(context, const PlayFromMic());
+                  goToRouteState(context, const FileScreen());
                 },
-                child: const Text('Mic Stream'),
+                child: const Text('File'),
               ),
               ElevatedButton(
                 onPressed: () {
-                  goToRoute(context, const MyAppBluetooth());
+                  goToRouteState(context, const MicrophoneScreen());
+                },
+                child: const Text('Microphone'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  goToRouteState(context, const BluetoothScreen());
                 },
                 child: const Text('Bluetooth'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  goToRouteState(context, const LocationScreen());
+                },
+                child: const Text('Location'),
               ),
             ],
           ),

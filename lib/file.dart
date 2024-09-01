@@ -4,18 +4,9 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
-class FileRoute extends StatelessWidget {
-  const FileRoute({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: FileScreen(),
-    );
-  }
-}
-
 class FileScreen extends StatefulWidget {
+  const FileScreen({Key? key}) : super(key: key);
+
   @override
   FileScreenState createState() => FileScreenState();
 }
@@ -27,65 +18,46 @@ class FileScreenState extends State<FileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('File Screen'),
-      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               TextField(
                 controller: textController,
                 decoration: const InputDecoration(
-                  labelText: 'Write down a text',
+                  labelText: 'Write a text here',
                 ),
               ),
               const SizedBox(height: 20.0),
               ElevatedButton(
                 onPressed: () async {
                   String? path = await selectFile();
-                  await readFile(path);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Text was saved'),
-                    ),
-                  );
+                  if (path != null) {
+                    await readFile(path);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Text was read from the file'),
+                      ),
+                    );
+                  }
                 },
                 child: const Text('Read a file'),
               ),
               ElevatedButton(
                 onPressed: () async {
                   String? path = await selectFileLocation();
-                  if (path != null) {
-                    if (path.isNotEmpty) {
-                      await saveFile(textController.text, '$path/textfile.txt');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Text was saved'),
-                        ),
-                      );
-                    }
+                  if (path != null && path.isNotEmpty) {
+                    await saveFile(textController.text, '$path/textfile.txt');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Text was saved in a new file'),
+                      ),
+                    );
                   }
                 },
                 child: const Text('Save in a new file'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  String? path = await selectFile();
-                  if (path != null) {
-                    if (path.isNotEmpty) {
-                      await saveFile(textController.text, path);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Text was saved'),
-                        ),
-                      );
-                    }
-                  }
-                },
-                child: const Text('Save in a file'),
               ),
             ],
           ),
@@ -97,9 +69,6 @@ class FileScreenState extends State<FileScreen> {
   Future<void> saveFile(String text, String filePath) async {
     try {
       final File file = File(filePath);
-      if (!await file.parent.exists()) {
-        await file.parent.create(recursive: true);
-      }
       await file.writeAsString(text);
     } catch (e) {
       print('Error saving file: $e');
@@ -116,16 +85,15 @@ class FileScreenState extends State<FileScreen> {
     }
   }
 
-  Future<void> readFile(String? path) async {
+  Future<void> readFile(String path) async {
     try {
-      if (path != null) {
-        File file = File(path);
-        String contents = await file.readAsString();
-
+      File file = File(path);
+      String contents = await file.readAsString();
+      setState(() {
         textController.text = contents;
-      }
+      });
     } catch (e) {
-      print('Error selecting file: $e');
+      print('Error reading file: $e');
     }
   }
 
@@ -140,10 +108,9 @@ class FileScreenState extends State<FileScreen> {
       } else {
         return null;
       }
-    } catch (e){
-      print('Error selecting file location: $e');
+    } catch (e) {
+      print('Error selecting file: $e');
       return null;
     }
   }
-
 }

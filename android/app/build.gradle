@@ -27,9 +27,14 @@ if (flutterMinSdkVersion == null) {
     flutterMinSdkVersion = '21'
 }
 
+def flutterCompileSdkVersion = localProperties.getProperty('flutter.compileSdkVersion')
+if (flutterCompileSdkVersion == null) {
+    flutterCompileSdkVersion = '34'
+}
+
 android {
     namespace "com.example.setuproject"
-    compileSdkVersion flutter.compileSdkVersion
+    compileSdkVersion 34
     ndkVersion flutter.ndkVersion
 
     compileOptions {

@@ -1,53 +1,74 @@
-import 'package:flutter/material.dart';
-import 'package:bluetooth_enable_fork/bluetooth_enable_fork.dart';
+import 'dart:async';
 
-class MyAppBluetooth extends StatelessWidget {
-  const MyAppBluetooth({super.key});
+import 'package:flutter/material.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+class BluetoothScreen extends StatefulWidget {
+  const BluetoothScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: "Test",
-      home: _MyAppState(),
-    );
-  }
+  _BluetoothScreenState createState() => _BluetoothScreenState();
 }
 
-class _MyAppState extends StatelessWidget {
+class _BluetoothScreenState extends State<BluetoothScreen> {
+  BluetoothAdapterState _adapterState = BluetoothAdapterState.unknown;
+  late StreamSubscription<BluetoothAdapterState> _adapterStateSubscription;
 
-  Future<void> enableBT() async {
-    BluetoothEnable.enableBluetooth.then((value) {
-      print(value);
+  @override
+  void initState() {
+    super.initState();
+    _checkPermissions();
+    _adapterStateSubscription = FlutterBluePlus.adapterState.listen((state) {
+      setState(() {
+        _adapterState = state;
+      });
     });
   }
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            'Bluetooth Enable Plugin',
-          ),
-          centerTitle: true,
-        ),
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text("Press the button to request turning on Bluetooth"),
-              SizedBox(height: 20.0),
-              ElevatedButton(
-                onPressed: (() {
-                  enableBT();
-                }),
-                child: Text('Request to turn on Bluetooth'),
-              ),
-              SizedBox(height: 10.0),
+  void dispose() {
+    _adapterStateSubscription.cancel();
+    super.dispose();
+  }
 
-            ],
-          ),
+  Future<void> _checkPermissions() async {
+    if (await Permission.bluetoothScan.isDenied) {
+      await Permission.bluetoothScan.request();
+    }
+    if (await Permission.bluetoothConnect.isDenied) {
+      await Permission.bluetoothConnect.request();
+    }
+  }
+
+  void _toggleBluetooth() async {
+    if (_adapterState == BluetoothAdapterState.on) {
+      await FlutterBluePlus.turnOff();
+    } else {
+      await FlutterBluePlus.turnOn();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    bool isBluetoothOn = _adapterState == BluetoothAdapterState.on;
+
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Push the button to turn on/off bluetooth',
+            ),
+            ElevatedButton(
+              onPressed: _toggleBluetooth,
+              child: const Text('Turn on/off the Bluetooth'),
+            ),
+            Text(
+              'Status: Bluetooth ${isBluetoothOn ? "ON" : "OFF"}',
+            ),
+          ],
         ),
       ),
     );
